@@ -13,16 +13,12 @@ interface WeatherData {
 }
 
 export default function WeatherScreen({
-  origin,
   destination,
   vehicle,
-  selectedRoute,
   onNext,
 }: {
-  origin: string;
   destination: string;
   vehicle: string;
-  selectedRoute: any;
   onNext: (weather: WeatherData) => void;
 }) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -32,7 +28,6 @@ export default function WeatherScreen({
     const fetchWeather = async () => {
       setIsLoading(true);
       try {
-        // Step 1: Geocode the destination to get latitude and longitude
         const geocodeResponse = await fetch(
           `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(destination)}&format=json&limit=1`
         );
@@ -45,7 +40,6 @@ export default function WeatherScreen({
         const lat = geocodeData[0].lat;
         const lon = geocodeData[0].lon;
 
-        // Step 2: Fetch weather data from Open-Meteo API
         const weatherResponse = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weathercode,wind_speed_10m`
         );
@@ -66,7 +60,6 @@ export default function WeatherScreen({
         }
       } catch (error) {
         console.error("Weather fetch error:", error);
-        // Fallback to mock data
         setWeather({
           temperature: 25,
           condition: "Clear",
@@ -81,7 +74,6 @@ export default function WeatherScreen({
     fetchWeather();
   }, [destination]);
 
-  // Helper function to map Open-Meteo weather codes to conditions
   const mapWeatherCodeToCondition = (code: number): string => {
     switch (code) {
       case 0:
@@ -98,7 +90,7 @@ export default function WeatherScreen({
       case 65:
         return "Rain";
       default:
-        return "Clouds"; // Default to clouds for unknown codes
+        return "Clouds";
     }
   };
 
@@ -129,11 +121,11 @@ export default function WeatherScreen({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="w-full"
+      className="w-full space-y-6 px-4 sm:px-0"
     >
-      <h1 className="text-8xl font-bold mb-6 ml-18 max-w-4xl">Weather Check! 🌈</h1>
-      <h2 className="text-7xl font-bold mb-6 ml-18 max-w-4xl mt-4">At {destination}</h2>
-      <div className="ml-18 mt-9 max-w-md">
+      <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold max-w-4xl">Weather Check! 🌈</h1>
+      <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold max-w-4xl">At {destination}</h2>
+      <div className="max-w-md">
         {isLoading ? (
           <div className="text-center">Loading weather... ⏳</div>
         ) : (
@@ -142,17 +134,17 @@ export default function WeatherScreen({
               <div className="flex items-center">
                 {getWeatherIcon(weather.condition)}
                 <div className="ml-4">
-                  <div className="text-2xl font-medium">{weather.condition}</div>
-                  <div className="text-4xl">{weather.temperature}°C 🌡️</div>
+                  <div className="text-xl sm:text-2xl font-medium">{weather.condition}</div>
+                  <div className="text-3xl sm:text-4xl">{weather.temperature}°C 🌡️</div>
                 </div>
               </div>
-              <div className="text-lg">
+              <div className="text-base sm:text-lg">
                 <Wind size={20} className="inline mr-2" /> Wind: {weather.windSpeed} m/s
               </div>
-              <div className="text-lg">
+              <div className="text-base sm:text-lg">
                 <Thermometer size={20} className="inline mr-2" /> Humidity: {weather.humidity}%
               </div>
-              <div className="text-lg text-[#7628DD] font-medium">
+              <div className="text-base sm:text-lg text-[#7628DD] font-medium">
                 Travel Tip: {getTravelAdvice()}
               </div>
             </div>
