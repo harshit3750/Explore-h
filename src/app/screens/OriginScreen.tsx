@@ -1,5 +1,5 @@
 // app/screens/OriginScreen.tsx
-"use client"
+"use client";
 
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -13,6 +13,7 @@ export default function OriginScreen({
   onNext: (origin: string) => void;
 }) {
   const [origin, setOrigin] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
   const getCurrentLocation = () => {
@@ -44,15 +45,17 @@ export default function OriginScreen({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="w-full space-y-6 px-4 sm:px-0"
+      className="w-full"
     >
-      <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold max-w-4xl">So {name}, 🌟</h1>
-      <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold max-w-4xl">Where are you starting from?</h1>
-      <div className="relative max-w-md">
+      <h1 className="text-8xl font-bold mb-6 ml-18 max-w-4xl">So {name}, 🌟</h1>
+      <h1 className="text-7xl font-bold mb-6 ml-18 max-w-4xl mt-4">Where are you starting from?</h1>
+      <div className="relative max-w-md ml-18 mt-9">
         <input
           type="text"
           value={origin}
           onChange={(e) => setOrigin(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           placeholder="Enter your location"
           className="w-full p-0 bg-transparent border-0 border-b-2 border-zinc-700 focus:border-white text-white placeholder-zinc-500 focus:outline-none text-lg pb-2"
         />
@@ -62,7 +65,7 @@ export default function OriginScreen({
         whileTap={{ scale: 0.95 }}
         onClick={getCurrentLocation}
         disabled={isLoadingLocation}
-        className="mt-4 flex items-center text-[#7628DD] font-semibold"
+        className="mt-4 ml-18 flex items-center text-[#7628DD] font-semibold"
       >
         <MapPin size={18} className="mr-2" />
         {isLoadingLocation ? "Getting location... 📍" : "Use current location 📍"}
@@ -72,7 +75,7 @@ export default function OriginScreen({
         whileTap={{ scale: 0.95 }}
         onClick={() => origin && onNext(origin)}
         disabled={!origin}
-        className="mt-6 px-6 py-3 rounded-full bg-[#7628DD] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-6 px-6 py-3 ml-18 rounded-full bg-[#7628DD] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Proceed 🚀
       </motion.button>

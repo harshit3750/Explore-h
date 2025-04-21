@@ -1,29 +1,9 @@
+// app/screens/TripSummaryScreen.tsx
 "use client";
 
 import { motion } from "framer-motion";
 import { Clock, DollarSign, AlertTriangle, MapPin, Download } from "lucide-react";
 import { jsPDF } from "jspdf";
-
-interface Route {
-  distance: number;
-  duration: number;
-  geometry: {
-    coordinates: [number, number][];
-  };
-  tolls?: number;
-  congestion?: string;
-  steps?: Array<{
-    maneuver: { instruction: string };
-    distance: number;
-  }>;
-}
-
-interface WeatherData {
-  temperature: number;
-  condition: string;
-  windSpeed: number;
-  humidity: number;
-}
 
 export default function TripSummaryScreen({
   name,
@@ -37,8 +17,8 @@ export default function TripSummaryScreen({
   origin: string;
   destination: string;
   vehicle: string;
-  selectedRoute: Route | null;
-  weather: WeatherData | null;
+  selectedRoute: any;
+  weather: any;
 }) {
   const formatDistance = (meters: number) =>
     meters >= 1000 ? `${(meters / 1000).toFixed(1)} km` : `${meters.toFixed(0)} m`;
@@ -52,8 +32,6 @@ export default function TripSummaryScreen({
   const usdToInr = (usd: number) => (usd * 83).toFixed(2);
 
   const downloadPDF = () => {
-    if (!selectedRoute || !weather) return;
-
     const doc = new jsPDF();
     let yPos = 20;
 
@@ -76,11 +54,11 @@ export default function TripSummaryScreen({
     yPos += 7;
     doc.text(`Distance: ${formatDistance(selectedRoute.distance)}`, 20, yPos);
     yPos += 7;
-    if (selectedRoute.tolls && selectedRoute.tolls > 0) {
+    if (selectedRoute.tolls > 0) {
       doc.text(`Estimated Tolls: ₹${usdToInr(selectedRoute.tolls)}`, 20, yPos);
       yPos += 7;
     }
-    doc.text(`Congestion: ${selectedRoute.congestion || "Unknown"}`, 20, yPos);
+    doc.text(`Congestion: ${selectedRoute.congestion}`, 20, yPos);
     yPos += 15;
 
     doc.setFontSize(16);
@@ -90,7 +68,7 @@ export default function TripSummaryScreen({
     doc.setFontSize(12);
     const steps = selectedRoute.steps || [];
     if (steps.length > 0) {
-      steps.forEach((step, index: number) => {
+      steps.forEach((step: any, index: number) => {
         const instruction = `${index + 1}. ${step.maneuver.instruction} (${formatDistance(step.distance)})`;
         const lines = doc.splitTextToSize(instruction, 170);
         lines.forEach((line: string) => {
@@ -129,23 +107,19 @@ export default function TripSummaryScreen({
     doc.save(`${name}_Trip_Summary_${origin}_to_${destination}.pdf`);
   };
 
-  if (!selectedRoute || !weather) {
-    return <div className="text-white p-4">Loading trip summary...</div>;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="w-full space-y-6 px-4 sm:px-0"
+      className="w-full"
     >
-      <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold max-w-4xl">Trip Summary! 🎉</h1>
-      <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold max-w-4xl">Ready, {name}?</h2>
-      <div className="max-w-md space-y-6">
+      <h1 className="text-8xl font-bold mb-6 ml-18 max-w-4xl">Trip Summary! 🎉</h1>
+      <h2 className="text-7xl font-bold mb-6 ml-18 max-w-4xl mt-4">Ready, {name}?</h2>
+      <div className="ml-18 mt-9 max-w-md space-y-6">
         <div>
-          <div className="text-xl sm:text-2xl font-medium mb-2">Route Details 🗺️</div>
-          <div className="space-y-2 text-base sm:text-lg">
+          <div className="text-2xl font-medium mb-2">Route Details 🗺️</div>
+          <div className="space-y-2 text-lg">
             <div>
               <MapPin size={20} className="inline mr-2" /> From: {origin}
             </div>
@@ -161,7 +135,7 @@ export default function TripSummaryScreen({
               {formatDuration(selectedRoute.duration)}
             </div>
             <div>{formatDistance(selectedRoute.distance)} 📏</div>
-            {selectedRoute.tolls && selectedRoute.tolls > 0 && (
+            {selectedRoute.tolls > 0 && (
               <div>
                 <DollarSign size={20} className="inline mr-2" /> 💰 Tolls: ₹
                 {usdToInr(selectedRoute.tolls)}
@@ -169,13 +143,13 @@ export default function TripSummaryScreen({
             )}
             <div>
               <AlertTriangle size={20} className="inline mr-2" /> 🚦 Congestion:{" "}
-              {selectedRoute.congestion || "Unknown"}
+              {selectedRoute.congestion}
             </div>
           </div>
         </div>
         <div>
-          <div className="text-xl sm:text-2xl font-medium mb-2">Weather at Destination 🌤️</div>
-          <div className="space-y-2 text-base sm:text-lg">
+          <div className="text-2xl font-medium mb-2">Weather at Destination 🌤️</div>
+          <div className="space-y-2 text-lg">
             <div>
               {weather.condition}{" "}
               {weather.condition === "Clear" ? "☀️" : "☁️"}
@@ -186,10 +160,10 @@ export default function TripSummaryScreen({
           </div>
         </div>
         <div>
-          <div className="text-xl sm:text-2xl font-medium mb-2">Navigation Instructions 🧭</div>
-          <div className="space-y-2 text-base sm:text-lg max-h-48 overflow-y-auto">
+          <div className="text-2xl font-medium mb-2">Navigation Instructions 🧭</div>
+          <div className="space-y-2 text-lg max-h-48 overflow-y-auto">
             {selectedRoute.steps && selectedRoute.steps.length > 0 ? (
-              selectedRoute.steps.map((step, index: number) => (
+              selectedRoute.steps.map((step: any, index: number) => (
                 <div key={index}>
                   {index + 1}. {step.maneuver.instruction} (
                   {formatDistance(step.distance)})
@@ -200,12 +174,12 @@ export default function TripSummaryScreen({
             )}
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+        <div className="flex space-x-4">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={downloadPDF}
-            className="px-6 py-3 rounded-full bg-[#7628DD] text-white font-semibold flex items-center justify-center"
+            className="px-6 py-3 rounded-full bg-[#7628DD] text-white font-semibold flex items-center"
           >
             <Download size={20} className="mr-2" /> Download PDF 📥
           </motion.button>
